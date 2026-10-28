@@ -14,7 +14,7 @@
  * Listens on PORT (0.0.0.0):
  *   Phone (needs the PIN shown on the TV):
  *     GET  /                     phone companion page
- *     POST /api/send             { pin, url } or { pin, text }
+ *     POST /api/send             { pin, url } or { pin, text } or { pin, shortcut: { name, url } }
  *     GET  /api/settings?pin=    widget settings (token masked)
  *     POST /api/settings         { pin, ...settings }
  *   Launcher (localhost only):
@@ -650,7 +650,12 @@ function tvdeckService() {
     if (route === 'POST /api/send') {
       return readBody(req).then(function (body) {
         if (!checkPin(body.pin)) return send(res, 403, { error: 'PIN incorreto' });
-        var item = body.url ? { type: 'url', value: String(body.url).slice(0, 2000) }
+        var sc = body.shortcut;
+        var scUrl = sc && String(sc.url || '').trim();
+        if (sc && !/^https?:\/\/\S+$/i.test(scUrl)) return send(res, 400, { error: 'Link inválido (comece com https://)' });
+        // A home-screen shortcut: kept only on the TV, never in the repository.
+        var item = sc ? { type: 'shortcut', name: String(sc.name || '').trim().slice(0, 60), value: scUrl.slice(0, 2000) }
+          : body.url ? { type: 'url', value: String(body.url).slice(0, 2000) }
           : body.text ? { type: 'text', value: String(body.text).slice(0, 500) } : null;
         if (!item) return send(res, 400, { error: 'Nada para enviar' });
         item.at = Date.now();
@@ -774,6 +779,10 @@ function tvdeckService() {
     '<h2>Enviar para a TV</h2><div class="group">',
     '<label for="link">Link ou texto</label><input id="link" placeholder="Cole um link ou digite uma mensagem" autocomplete="off">',
     '<button id="send">Enviar para a TV</button></div><div class="msg" id="send-msg"></div>',
+    '<h2>Atalho na tela inicial</h2><div class="group">',
+    '<label for="scName">Nome</label><input id="scName" placeholder="Câmeras da loja" autocomplete="off">',
+    '<label for="scUrl">Link</label><input id="scUrl" type="url" placeholder="https://..." autocomplete="off">',
+    '<button id="addShortcut">Adicionar à TV</button><p class="hint">Fica salvo só na TV, nos Favoritos.</p></div><div class="msg" id="sc-msg"></div>',
     '<h2>Entradas</h2><div class="group">',
     '<label for="inputs">Uma por linha: Nome=TECLA</label><textarea id="inputs"></textarea>',
     '<p class="hint">Teclas: KEY_HDMI1-4, KEY_TV, KEY_SOURCE. Exemplo: PlayStation=KEY_HDMI2</p></div>',
@@ -793,6 +802,8 @@ function tvdeckService() {
     'fetch("/api/settings?pin="+encodeURIComponent(pin)).then(function(r){return r.json()}).then(function(s){if(s.error){$("save-msg").textContent=s.error}else fill(s)});',
     '$("send").onclick=function(){var v=$("link").value.trim();if(!v)return;var isUrl=/^(https?:\\/\\/|www\\.)/i.test(v);',
     'post("/api/send",isUrl?{url:/^www\\./i.test(v)?"https://"+v:v}:{text:v}).then(function(){$("send-msg").textContent="Enviado";$("link").value=""}).catch(function(e){$("send-msg").textContent=e.message})};',
+    '$("addShortcut").onclick=function(){var u=$("scUrl").value.trim();if(!u)return;if(!/^https?:\\/\\//i.test(u))u="https://"+u;',
+    'post("/api/send",{shortcut:{name:$("scName").value.trim(),url:u}}).then(function(){$("sc-msg").textContent="Atalho enviado para a TV";$("scUrl").value="";$("scName").value=""}).catch(function(e){$("sc-msg").textContent=e.message})};',
     '$("save").onclick=function(){post("/api/settings",{calendarUrl:$("calendarUrl").value,haUrl:$("haUrl").value,haToken:$("haToken").value,haEntities:$("haEntities").value,inputs:$("inputs").value})',
     '.then(function(s){fill(s);$("haToken").value="";$("save-msg").textContent="Salvo"}).catch(function(e){$("save-msg").textContent=e.message})};',
     '</script></body></html>'

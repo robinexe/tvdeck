@@ -756,7 +756,20 @@
 
   /* ---------- Overlays ---------- */
 
+  // A shortcut sent from the phone page: saved on the TV and pinned to Favorites.
+  function addShortcut(item) {
+    var url = item.value;
+    var name = item.name || hostOf(url);
+    var links = Store.get('webLinks').filter(function (l) { return l.url !== url; });
+    Store.set('webLinks', links.concat([{ name: name, url: url }]));
+    var favs = Store.get('favorites').filter(function (k) { return k !== 'web:' + url; });
+    Store.set('favorites', favs.concat(['web:' + url]));
+    toast('Atalho ' + name + ' adicionado aos Favoritos');
+    if (loaded) { buildRows(); render(); }
+  }
+
   function showNextMessage() {
+    while (messages.length && messages[0].type === 'shortcut') addShortcut(messages.shift());
     if (mode !== 'home' || !messages.length) return;
     showOverlay({ type: 'message', item: messages.shift() });
   }
