@@ -13,10 +13,12 @@
     // So code loads from the exact commit seen last time (immutable URLs),
     // and a newer commit is looked up in the background for the next launch.
     (function () {
-      var KEY = 'tvdeck:build';
       // gh/user/repo, optionally pinned (@ref): after one launch, the newest
       // commit is always used.
       var gh = /\/module\/gh%2F([^/%]+)%2F([^/%@]+)(?:%40[^/]*)?\//.exec(location.pathname);
+      // One saved build per repository: a commit remembered by another
+      // TVDeck module (the original, or another fork) must never be loaded here.
+      var KEY = 'tvdeck:build' + (gh ? ':' + gh[1] + '/' + gh[2] : '');
       var base = '';
       try {
         var build = localStorage.getItem(KEY);

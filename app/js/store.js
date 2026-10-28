@@ -23,7 +23,7 @@ var Store = (function () {
       { name: 'g1', url: 'https://g1.globo.com' },
       { name: 'Climatempo', url: 'https://www.climatempo.com.br' }
     ],
-    city: 'Arraial do Cabo',
+    city: 'Arraial do Cabo, RJ',
     userName: 'Matheus',
     showInputs: false,      // the Inputs row (TV ao vivo stays pinned in Favorites)
     liveTvAdded: true,      // TV ao vivo was put in Favorites once
