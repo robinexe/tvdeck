@@ -109,6 +109,11 @@
     data.inputs.forEach(function (input) {
       items['key:' + input.key] = { key: 'key:' + input.key, kind: 'key', name: input.name, badge: 'Entrada', ref: input };
     });
+    // TV ao vivo is always available as a shortcut, even before the service lists inputs.
+    if (!items['key:KEY_TV']) {
+      var live = { name: 'TV ao vivo', key: 'KEY_TV' };
+      items['key:KEY_TV'] = { key: 'key:KEY_TV', kind: 'key', name: live.name, badge: 'Entrada', ref: live };
+    }
     return items;
   }
 
@@ -137,7 +142,7 @@
         empty: 'Aperte o VERMELHO em qualquer bloco para fixar aqui' },
       { id: 'glance', title: 'Resumo', glance: true, items: glanceItems() },
       { id: 'recent', title: 'Recentes', items: Store.get('showRecent') ? lookup(Store.get('recent')) : [] },
-      { id: 'inputs', title: 'Entradas', items: data.inputs.map(function (input) { return items['key:' + input.key]; }) },
+      { id: 'inputs', title: 'Entradas', items: Store.get('showInputs') ? data.inputs.map(function (input) { return items['key:' + input.key]; }) : [] },
     ].concat(appRows(items, hidden), [
       { id: 'modules', title: 'Módulos TizenBrew', items: data.modules
           .map(function (mod) { return items['mod:' + mod.fullName]; }) },
@@ -606,7 +611,13 @@
       case 'key':
         Platform.sendKey(item.ref.key)
           .then(function () { toast('Mudando para ' + item.name); })
-          .catch(function () { toast('Serviço do TVDeck não está rodando'); });
+          .catch(function () {
+            // Without the service, TV ao vivo can still open the TV's own viewer app.
+            if (item.ref.key !== 'KEY_TV') return toast('Serviço do TVDeck não está rodando');
+            Platform.launchApp('org.tizen.tv-viewer')
+              .then(function () { toast('Abrindo ' + item.name); })
+              .catch(function () { toast('Serviço do TVDeck não está rodando'); });
+          });
         break;
       case 'ha':
       case 'media':
@@ -1041,6 +1052,7 @@
       return [
         toggle('Agrupar apps por categoria', 'groupApps'),
         toggle('Fileira de recentes', 'showRecent'),
+        toggle('Fileira de entradas (HDMI)', 'showInputs'),
         toggle('Tela de descanso quando parada', 'ambient', noteActivity),
         settingRow('Limpar recentes', recentCount + (recentCount === 1 ? ' item' : ' itens'), function () {
           Store.set('recent', []);

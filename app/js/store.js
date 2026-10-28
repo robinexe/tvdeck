@@ -9,7 +9,7 @@ var Store = (function () {
   var KEY = 'tvdeck:v1';
 
   var DEFAULTS = {
-    favorites: [],          // item keys, e.g. "app:3201907018807", "mod:npm/foo", "web:0"
+    favorites: ['key:KEY_TV'], // item keys, e.g. "app:3201907018807", "mod:npm/foo", "web:0"
     hiddenApps: [],         // app ids
     recent: [],             // item keys, most recent first
     openedAt: {},           // item key -> last opened (ms), for the shelf
@@ -25,6 +25,8 @@ var Store = (function () {
     ],
     city: 'Arraial do Cabo',
     userName: 'Matheus',
+    showInputs: false,      // the Inputs row (TV ao vivo stays pinned in Favorites)
+    liveTvAdded: true,      // TV ao vivo was put in Favorites once
     use24h: true,
     showWeather: true
   };
@@ -41,6 +43,12 @@ var Store = (function () {
     if (saved.city === 'Tunis') delete saved.city;
     if (saved.webLinks && saved.webLinks.length === 2 && /wikipedia/.test(saved.webLinks[0].url) &&
         /ycombinator/.test(saved.webLinks[1].url)) delete saved.webLinks;
+    // Once, put TV ao vivo first in Favorites for settings saved before it existed.
+    if (Object.keys(saved).length && !saved.liveTvAdded) {
+      var favs = (saved.favorites || []).filter(function (k) { return k !== 'key:KEY_TV'; });
+      saved.favorites = ['key:KEY_TV'].concat(favs);
+      saved.liveTvAdded = true;
+    }
     var merged = {};
     Object.keys(DEFAULTS).forEach(function (k) {
       merged[k] = saved.hasOwnProperty(k) ? saved[k] : JSON.parse(JSON.stringify(DEFAULTS[k]));
