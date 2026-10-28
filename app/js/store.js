@@ -20,10 +20,11 @@ var Store = (function () {
     groupApps: true,        // one row per app category
     ambient: true,          // ambient screen after a few idle minutes
     webLinks: [
-      { name: 'Wikipedia', url: 'https://en.m.wikipedia.org' },
-      { name: 'Hacker News', url: 'https://news.ycombinator.com' }
+      { name: 'g1', url: 'https://g1.globo.com' },
+      { name: 'Climatempo', url: 'https://www.climatempo.com.br' }
     ],
-    city: 'Tunis',
+    city: 'Arraial do Cabo',
+    userName: 'Matheus',
     use24h: true,
     showWeather: true
   };
@@ -35,6 +36,11 @@ var Store = (function () {
     try {
       saved = JSON.parse(localStorage.getItem(KEY)) || {};
     } catch (e) { /* storage unavailable or corrupt */ }
+    // Settings saved by the original English TVDeck: swap its sample city and
+    // sample links for this build's defaults.
+    if (saved.city === 'Tunis') delete saved.city;
+    if (saved.webLinks && saved.webLinks.length === 2 && /wikipedia/.test(saved.webLinks[0].url) &&
+        /ycombinator/.test(saved.webLinks[1].url)) delete saved.webLinks;
     var merged = {};
     Object.keys(DEFAULTS).forEach(function (k) {
       merged[k] = saved.hasOwnProperty(k) ? saved[k] : JSON.parse(JSON.stringify(DEFAULTS[k]));

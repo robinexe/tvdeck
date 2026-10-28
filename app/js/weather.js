@@ -10,13 +10,13 @@ var Weather = (function () {
 
   // WMO weather codes -> [label, glyph]
   var CODES = {
-    0: ['Clear', '☀'], 1: ['Mostly clear', '🌤'], 2: ['Partly cloudy', '⛅'], 3: ['Overcast', '☁'],
-    45: ['Fog', '🌫'], 48: ['Fog', '🌫'],
-    51: ['Drizzle', '🌦'], 53: ['Drizzle', '🌦'], 55: ['Drizzle', '🌦'],
-    61: ['Rain', '🌧'], 63: ['Rain', '🌧'], 65: ['Heavy rain', '🌧'],
-    71: ['Snow', '🌨'], 73: ['Snow', '🌨'], 75: ['Heavy snow', '🌨'],
-    80: ['Showers', '🌦'], 81: ['Showers', '🌦'], 82: ['Heavy showers', '⛈'],
-    95: ['Thunderstorm', '⛈'], 96: ['Thunderstorm', '⛈'], 99: ['Thunderstorm', '⛈']
+    0: ['Céu limpo', '☀'], 1: ['Poucas nuvens', '🌤'], 2: ['Parcialmente nublado', '⛅'], 3: ['Nublado', '☁'],
+    45: ['Neblina', '🌫'], 48: ['Neblina', '🌫'],
+    51: ['Garoa', '🌦'], 53: ['Garoa', '🌦'], 55: ['Garoa', '🌦'],
+    61: ['Chuva', '🌧'], 63: ['Chuva', '🌧'], 65: ['Chuva forte', '🌧'],
+    71: ['Neve', '🌨'], 73: ['Neve', '🌨'], 75: ['Neve forte', '🌨'],
+    80: ['Pancadas de chuva', '🌦'], 81: ['Pancadas de chuva', '🌦'], 82: ['Pancadas fortes', '⛈'],
+    95: ['Trovoadas', '⛈'], 96: ['Trovoadas', '⛈'], 99: ['Trovoadas', '⛈']
   };
 
   function getJSON(url) {
@@ -44,11 +44,11 @@ var Weather = (function () {
     var cached = readCache(city);
     if (cached) return Promise.resolve(cached);
 
-    var geoUrl = 'https://geocoding-api.open-meteo.com/v1/search?count=1&name=' + encodeURIComponent(city);
+    var geoUrl = 'https://geocoding-api.open-meteo.com/v1/search?count=1&language=pt&name=' + encodeURIComponent(city);
     return getJSON(geoUrl).then(function (geo) {
-      if (!geo.results || !geo.results.length) throw new Error('City not found');
+      if (!geo.results || !geo.results.length) throw new Error('Cidade não encontrada');
       var place = geo.results[0];
-      var url = 'https://api.open-meteo.com/v1/forecast?current=temperature_2m,weather_code' +
+      var url = 'https://api.open-meteo.com/v1/forecast?current=temperature_2m,weather_code,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min&forecast_days=1&timezone=auto' +
         '&latitude=' + place.latitude + '&longitude=' + place.longitude;
       return getJSON(url).then(function (forecast) {
         var code = forecast.current.weather_code;
@@ -56,6 +56,9 @@ var Weather = (function () {
         var data = {
           place: place.name,
           temp: Math.round(forecast.current.temperature_2m),
+          max: forecast.daily ? Math.round(forecast.daily.temperature_2m_max[0]) : null,
+          min: forecast.daily ? Math.round(forecast.daily.temperature_2m_min[0]) : null,
+          wind: forecast.current.wind_speed_10m != null ? Math.round(forecast.current.wind_speed_10m) : null,
           label: info[0],
           glyph: info[1]
         };

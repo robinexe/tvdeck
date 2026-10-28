@@ -1,9 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=1920, initial-scale=1">
   <title>TVDeck</title>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;800&display=swap">
   <link rel="icon" href="img/favicon-64.png">
   <script>
     // Installed from GitHub (gh/user/repo), TizenBrew loads files through
@@ -22,6 +24,7 @@
       } catch (e) { /* storage unavailable: use the proxied files */ }
       window.TVDECK_BASE = base;
       document.write('<link rel="stylesheet" href="' + base + 'style.css">');
+      document.write('<link rel="stylesheet" href="' + base + 'premium.css">');
       if (!gh || !window.fetch) return;
       fetch('https://api.github.com/repos/' + gh[1] + '/' + gh[2] + '/commits/main',
         { headers: { Accept: 'application/vnd.github.sha' } })
@@ -47,17 +50,23 @@
 
   <!-- Fixed top bar: quick access on the left, time and status on the right. -->
   <header class="topbar">
+    <div class="topbar-left">
     <nav class="nav" id="nav">
       <img class="nav-brand" src="img/mark-256.png" alt="TVDeck">
-      <div class="nav-btn" data-nav="settings"><span class="nav-icon" data-icon="settings"></span><span>Settings</span></div>
-      <div class="nav-btn" data-nav="phone"><span class="nav-icon" data-icon="phone"></span><span>Send from phone</span></div>
+      <div class="nav-btn" data-nav="settings"><span class="nav-icon" data-icon="settings"></span><span>Ajustes</span></div>
+      <div class="nav-btn" data-nav="phone"><span class="nav-icon" data-icon="phone"></span><span>Enviar do celular</span></div>
     </nav>
+    <div id="hello" class="hello"></div>
+    <div id="hello-sub" class="hello-sub"></div>
+    </div>
     <div class="shelf-status">
       <div id="clock" class="clock">--:--</div>
       <div id="date" class="date"></div>
       <div class="weather" id="weather" hidden>
+        <span id="weather-glyph" class="weather-glyph"></span>
         <span id="weather-temp" class="weather-temp"></span>
         <span id="weather-label" class="weather-label"></span>
+        <span id="weather-range" class="weather-range"></span>
       </div>
       <div id="ticker" class="ticker"></div>
     </div>
@@ -93,7 +102,7 @@
   <section id="settings" class="settings" hidden>
     <div class="settings-side">
       <div class="settings-glyph" id="settings-glyph"></div>
-      <h2 id="settings-title">Settings</h2>
+      <h2 id="settings-title">Ajustes</h2>
       <p id="settings-subtitle">TVDeck</p>
     </div>
     <div class="settings-panel">

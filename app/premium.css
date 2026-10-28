@@ -1,0 +1,325 @@
+/*
+ * Tema "Arraial": camada premium por cima do style.css original.
+ * Mar turquesa ao fundo, vidro fosco, foco com brilho e tipografia Inter.
+ * Só anima transform/opacity, para seguir leve no Tizen 6 (Chromium 76).
+ */
+:root {
+  --sea-1: #2dd4bf;      /* turquesa da Praia do Forno */
+  --sea-2: #0ea5e9;      /* azul do Pontal */
+  --sea-deep: #03141c;
+  --glass: rgba(255, 255, 255, 0.07);
+  --glass-strong: rgba(255, 255, 255, 0.12);
+  --glass-line: rgba(255, 255, 255, 0.12);
+  --glow: rgba(45, 212, 191, 0.55);
+  --font: "Inter", "SamsungOne", -apple-system, "Helvetica Neue", Arial, sans-serif;
+  --radius: 1.05vw;
+  --tile-base: #10232b;
+}
+
+html, body { background: var(--sea-deep); }
+
+/* ---------- Fundo: mar à noite com luz se movendo ---------- */
+.backdrop {
+  background:
+    radial-gradient(70% 55% at 12% 108%, rgba(45, 212, 191, 0.38) 0%, rgba(45, 212, 191, 0) 70%),
+    radial-gradient(60% 50% at 92% 100%, rgba(14, 165, 233, 0.32) 0%, rgba(14, 165, 233, 0) 70%),
+    radial-gradient(80% 60% at 50% -20%, #0b3445 0%, rgba(11, 52, 69, 0) 70%),
+    linear-gradient(180deg, #041b25 0%, #03141c 55%, #020d12 100%);
+}
+
+/* Reflexo de luz na água: uma mancha suave que deriva devagar */
+.backdrop::before,
+.backdrop::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  will-change: transform;
+}
+
+.backdrop::before {
+  width: 60vw;
+  height: 60vw;
+  left: -12vw;
+  bottom: -38vw;
+  background: radial-gradient(circle, rgba(94, 234, 212, 0.22) 0%, rgba(94, 234, 212, 0) 65%);
+  animation: sea-a 38s var(--sine) infinite alternate;
+}
+
+.backdrop::after {
+  width: 50vw;
+  height: 50vw;
+  right: -10vw;
+  bottom: -30vw;
+  background: radial-gradient(circle, rgba(56, 189, 248, 0.2) 0%, rgba(56, 189, 248, 0) 65%);
+  animation: sea-b 46s var(--sine) infinite alternate;
+}
+
+@keyframes sea-a {
+  from { transform: translate(0, 0) scale(1); }
+  to { transform: translate(14vw, -4vw) scale(1.15); }
+}
+
+@keyframes sea-b {
+  from { transform: translate(0, 0) scale(1.05); }
+  to { transform: translate(-12vw, -3vw) scale(0.95); }
+}
+
+.backdrop-shade {
+  background: linear-gradient(180deg,
+    rgba(2, 13, 18, 0.6) 0%,
+    rgba(2, 13, 18, 0.62) 32%,
+    rgba(2, 13, 18, 0.7) 58%,
+    rgba(2, 13, 18, 0.88) 80%);
+}
+
+/* ---------- Barra do topo ---------- */
+.topbar { padding-top: 2.1vw; }
+
+.topbar-left { display: flex; flex-direction: column; }
+
+.hello {
+  margin: 1.5vw 0 0 0.2vw;
+  font-size: 1.55vw;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: #fff;
+}
+
+.hello-sub {
+  margin: 0.25vw 0 0 0.2vw;
+  font-size: 0.9vw;
+  font-weight: 500;
+  letter-spacing: 0.14vw;
+  text-transform: uppercase;
+  color: rgba(153, 246, 228, 0.8);
+}
+
+.nav-brand {
+  width: 2.5vw;
+  height: 2.5vw;
+  filter: drop-shadow(0 0.3vw 0.8vw rgba(45, 212, 191, 0.45));
+}
+
+.nav-btn {
+  color: rgba(255, 255, 255, 0.78);
+  background: var(--glass);
+  box-shadow: inset 0 0 0 1px var(--glass-line);
+  font-weight: 600;
+}
+
+.nav-btn.focused {
+  color: #021015;
+  background: linear-gradient(135deg, #99f6e4 0%, #5eead4 45%, #38bdf8 100%);
+  box-shadow: 0 0.5vw 1.6vw rgba(45, 212, 191, 0.45);
+}
+
+/* Relógio grande e leve, com o clima num cartão de vidro */
+.clock {
+  font-size: 3.4vw;
+  font-weight: 300;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+.date {
+  margin-top: 0.45vw;
+  font-size: 1vw;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.weather {
+  display: inline-flex;
+  align-items: center;
+  margin-top: 0.7vw;
+  padding: 0.4vw 0.9vw 0.4vw 0.7vw;
+  border-radius: 2vw;
+  background: var(--glass);
+  box-shadow: inset 0 0 0 1px var(--glass-line);
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.92vw;
+  font-weight: 500;
+}
+
+.weather-glyph { margin-right: 0.45vw; font-size: 1.1vw; }
+
+.weather-temp { font-weight: 700; color: #fff; }
+
+.weather-range { margin-left: 0.6vw; color: rgba(153, 246, 228, 0.85); }
+
+.ticker {
+  margin-top: 0.55vw;
+  font-size: 0.88vw;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+/* ---------- Destaque (Top Shelf) ---------- */
+.shelf-kind {
+  font-weight: 700;
+  letter-spacing: 0.18vw;
+  color: var(--sea-1);
+}
+
+.shelf-title {
+  font-size: 3.9vw;
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  background: linear-gradient(180deg, #ffffff 30%, #c8fff4 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  padding-bottom: 0.2vw;
+}
+
+.shelf-meta {
+  font-size: 1.15vw;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.62);
+}
+
+/* ---------- Fileiras e blocos ---------- */
+.row-title {
+  font-size: 0.82vw;
+  font-weight: 700;
+  letter-spacing: 0.16vw;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.38);
+}
+
+.row.active .row-title { color: var(--sea-1); }
+
+.row:not(.active) .row-track { opacity: 0.55; }
+
+.tile-art {
+  background: var(--glass);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.tile-art::after { box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1); }
+
+/* Brilho turquesa por trás do bloco em foco (só a opacidade anima) */
+.tile::before {
+  top: 4%;
+  left: 3%;
+  right: 3%;
+  bottom: -8%;
+  box-shadow:
+    0 1.6vw 3.2vw rgba(0, 0, 0, 0.55),
+    0 0 2.4vw var(--glow);
+}
+
+.tile.focused { transform: scale(1.1); }
+
+/* Contorno de luz no bloco em foco */
+.tile.focused .tile-art::after {
+  box-shadow: inset 0 0 0 0.16vw rgba(153, 246, 228, 0.95), inset 0 0 1.4vw rgba(45, 212, 191, 0.35);
+}
+
+.tile.focused:not(.has-art) .tile-art {
+  background: linear-gradient(145deg, rgba(45, 212, 191, 0.32), rgba(14, 165, 233, 0.22));
+}
+
+.tile-caption {
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.tile-label { font-weight: 600; }
+
+/* Favoritos (dock) numa faixa de vidro */
+.row.dock .row-track {
+  margin: 0 calc(var(--edge) - 1.6vw);
+  padding-left: 1.6vw;
+  padding-right: 1.6vw;
+  padding-top: 1.4vw;
+  border-radius: 1.8vw;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.025));
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+.row-empty {
+  color: rgba(153, 246, 228, 0.6);
+  font-weight: 500;
+}
+
+/* ---------- Resumo (agenda/casa) ---------- */
+.row.glance .tile {
+  background: var(--glass);
+  box-shadow: inset 0 0 0 1px var(--glass-line);
+}
+
+/* ---------- Bordas e dicas ---------- */
+.topfade { background: linear-gradient(180deg, #03141c 45%, rgba(3, 20, 28, 0)); }
+.bottomfade { background: linear-gradient(0deg, rgba(2, 13, 18, 0.92), rgba(2, 13, 18, 0)); }
+
+.hints {
+  padding: 0.5vw 1.2vw;
+  border-radius: 2vw;
+  background: rgba(3, 20, 28, 0.6);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.55);
+  font-weight: 500;
+}
+
+/* ---------- Ajustes ---------- */
+.settings {
+  background: linear-gradient(90deg, rgba(2, 16, 22, 0.8) 0%, rgba(2, 16, 22, 0.9) 34%, rgba(2, 13, 18, 0.95) 100%);
+}
+
+.settings-glyph {
+  background: linear-gradient(160deg, #134e4a, #0c2a33);
+  box-shadow: inset 0 0 0 1px rgba(153, 246, 228, 0.2), 0 1vw 3vw rgba(45, 212, 191, 0.25);
+}
+
+.settings-side h2 { font-weight: 800; letter-spacing: -0.02em; }
+
+.setting {
+  background: var(--glass);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+  font-weight: 500;
+}
+
+.setting.focused {
+  color: #021015;
+  background: linear-gradient(135deg, #ccfbf1 0%, #99f6e4 50%, #7dd3fc 100%);
+  box-shadow: 0 0.6vw 1.8vw rgba(45, 212, 191, 0.35);
+}
+
+.setting-section { color: var(--sea-1); font-weight: 700; }
+
+/* ---------- Avisos e janelas ---------- */
+.toast {
+  background: rgba(6, 40, 48, 0.9);
+  box-shadow: inset 0 0 0 1px rgba(153, 246, 228, 0.25), 0 1vw 2.5vw rgba(0, 0, 0, 0.4);
+  font-weight: 600;
+}
+
+.overlay-card {
+  background: linear-gradient(160deg, rgba(10, 46, 56, 0.96), rgba(4, 22, 30, 0.96));
+  box-shadow: inset 0 0 0 1px rgba(153, 246, 228, 0.15), 0 2vw 5vw rgba(0, 0, 0, 0.5);
+}
+
+.overlay-btn.focused {
+  color: #021015;
+  background: linear-gradient(135deg, #99f6e4, #38bdf8);
+}
+
+/* ---------- Tela de descanso ---------- */
+.ambient-clock {
+  font-weight: 200;
+  background: linear-gradient(180deg, #ffffff 35%, #99f6e4 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.ambient-date { font-weight: 500; }
+
+.ambient-line { color: rgba(153, 246, 228, 0.75); font-weight: 500; }
+
+/* Ao rolar, a saudação some e a borda de cima cobre as fileiras */
+.hello, .hello-sub { transition: opacity 400ms var(--ease); }
+body.scrolled .hello,
+body.scrolled .hello-sub { opacity: 0; }
+.topfade { height: 11vw; }
