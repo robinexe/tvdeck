@@ -25,6 +25,7 @@ var Platform = (function () {
   var STORE_APP_ID = /^[A-Za-z0-9]{10}\.[A-Za-z0-9_-]+$/;
   var BUILT_IN_APPS = {
     'org.tizen.netflix-app': true,
+    'com.samsung.tv.cobalt-yt': true,       // YouTube on 2021+ Samsung TVs (Cobalt), reported with show=false
     'org.tizen.primevideo': true,
     'org.tizen.browser': true,
     'com.samsung.tv.store': true,
@@ -67,12 +68,15 @@ var Platform = (function () {
   ];
 
   function isUserApp(info) {
-    if (info.show === false || NEVER_SHOW[info.id]) return false;
-    return BUILT_IN_APPS[info.id] || STORE_APP_ID.test(info.id);
+    if (NEVER_SHOW[info.id]) return false;
+    if (BUILT_IN_APPS[info.id]) return true;  // listed on purpose, even when Tizen hides it
+    if (info.show === false) return false;
+    return STORE_APP_ID.test(info.id);
   }
 
   // "Spotify - Music and Podcasts" -> "Spotify", "TF1+ : Streaming…" -> "TF1+"
   function shortName(name) {
+    if (/^youtube$/i.test(name)) return 'YouTube';
     return name.split(/\s+[-:\u2013|]\s+/)[0].trim();
   }
 
@@ -104,7 +108,21 @@ var Platform = (function () {
     });
   }
 
+  // Some built-ins answer to another id than the one getAppsInfo reports:
+  // try these in order when the first launch is refused.
+  var LAUNCH_FALLBACKS = {
+    'com.samsung.tv.cobalt-yt': ['111299001912', '9Ur5IzDKqV.TizenYouTube']
+  };
+
   function launchApp(id) {
+    var rest = LAUNCH_FALLBACKS[id] || [];
+    return launchOne(id).catch(function retry(err) {
+      if (!rest.length) throw err;
+      return launchOne(rest.shift()).catch(retry);
+    });
+  }
+
+  function launchOne(id) {
     if (!IS_TV) {
       console.log('[mock] launch app', id);
       return Promise.resolve();
